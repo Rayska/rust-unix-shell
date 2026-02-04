@@ -1,43 +1,24 @@
 use std::io::{self, Write};
-use std::fs;
 
-enum CmdResult {
-	Ok(String),
-	Exit,
-	Unknown,
-}
+mod shell;
+use shell::commands::*;
+use shell::structures::*;
 
-fn take_input() -> String {
+
+fn take_input() -> Vec<String> {
 	let mut user_input: String = String::new();
 	io::stdin().read_line(&mut user_input).expect("Error reading input");
-	return user_input;
-}
 
-// TODO: implement options like -l and -a
-fn ls() -> CmdResult {
-	let path: String = String::from(".");
-	match fs::read_dir(".") {
-		Err(error) => return CmdResult::Ok(format!("Reading dir with path {} failed with {}", path, error)),
-		Ok(entries) => {
-			let mut names: Vec<String> = Vec::new();
-
-			for entry_res in entries {
-				if let Ok(entry) = entry_res {
-					let filename: String = entry.file_name().to_string_lossy().into_owned();
-					if !filename.starts_with(".") {
-						names.push(filename);
-					}
-				}
-			}
-
-			names.sort();
-			return CmdResult::Ok(names.join("\t"));
-		},
+	let trimmed = user_input.trim();
+	if trimmed.is_empty() {
+		return Vec::new();
 	}
+
+	return trimmed.split_whitespace().map(|s| s.to_string()).collect::<Vec<String>>();
 }
 
 fn main() {
-	let mut input: String;
+	let mut command_args: Vec<String>;
 
 	loop {
 		print!("$ ");
@@ -47,16 +28,20 @@ fn main() {
 			break;
 		}
 
-		input = take_input();
-		// TODO: implement parsing into n-sized vector/iterator for command-option separation
-		let action: CmdResult = match input.trim() {
-			"ls" => ls(),
+		command_args = take_input();
+
+		if command_args.is_empty() {
+			continue;
+		}
+
+		let action: CmdResult = match command_args.first().unwrap().trim() {
+			"ls" => ls(command_args),
 			"exit" => CmdResult::Exit,
 			_ => CmdResult::Unknown,
 		};
 
 		match action {
-			CmdResult::Ok(ref msg) => println!("{msg}"),
+			CmdResult::Ok => {},
 			CmdResult::Exit => {
 				println!("exiting...");
 				break;
