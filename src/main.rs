@@ -1,4 +1,5 @@
 use std::io::{self, Write};
+use std::path;
 
 mod shell;
 use shell::commands::*;
@@ -19,6 +20,8 @@ fn take_input() -> Vec<String> {
 
 fn main() {
 	let mut command_args: Vec<String>;
+	let mut current_dir = path::PathBuf::from(".");
+	let home_dir = path::PathBuf::from(".");
 
 	loop {
 		print!("$ ");
@@ -35,7 +38,8 @@ fn main() {
 		}
 
 		let action: CmdResult = match command_args.first().unwrap().trim() {
-			"ls" => ls(command_args),
+			"ls" => ls(&current_dir, command_args),
+			"cd" => cd(&home_dir, &mut current_dir, command_args),
 			"exit" => CmdResult::Exit,
 			_ => CmdResult::Unknown,
 		};

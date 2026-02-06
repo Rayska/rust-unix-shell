@@ -52,7 +52,7 @@ fn entry_permissions(path: &path::Path) -> Option<String> {
 	Some(result)
 }
 
-pub fn ls(args: Vec<String>) -> CmdResult {
+pub fn ls(path: &path::Path, args: Vec<String>) -> CmdResult {
 
 	let &rest;
 
@@ -84,10 +84,12 @@ pub fn ls(args: Vec<String>) -> CmdResult {
 
 	let path_str = rest.iter().rev()
 		.find(|s| !s.starts_with('-'))
-		.map(|s| s.as_str())
-		.unwrap_or(".");
+		.map(|s| s.as_str());
 
-	let p = path::Path::new(path_str);
+	let p = match path_str {
+		Some(str) => path::Path::new(str),
+		None => path,
+	};
 
 	match fs::read_dir(p) {
 		Err(error) => println!("Reading dir with path \"{}\" failed: {}", p.display(), error),

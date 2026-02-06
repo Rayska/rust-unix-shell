@@ -1,0 +1,46 @@
+use std::fs;
+use std::path;
+
+use crate::shell::structures::*;
+
+pub fn cd(home_dir: &path::Path, path: &mut path::PathBuf, args: Vec<String>) -> CmdResult {
+	let dest_string: String;
+
+	if args.len() == 1 {
+		*path = home_dir.to_path_buf();
+		return CmdResult::Ok;
+	} else if args.len() == 2{
+		dest_string = args[1].clone();
+	} else {
+		eprintln!("cd: too many arguments");
+		return CmdResult::Ok;
+	}
+
+	let candidate_pathbuf = if dest_string == "~" {
+		home_dir.to_path_buf()
+	} else {
+		let p = path::Path::new(&dest_string);
+
+		if p.is_absolute() {
+			p.to_path_buf()
+		} else {
+			path.join(p)
+		}
+	};
+
+	match fs::canonicalize(&candidate_pathbuf) {
+		Ok(canon) => {
+			if canon.is_dir() {
+				*path = canon;
+			} else {
+				let name = canon.file_name()
+					.map(|s| s.to_string_lossy().into_owned())
+					.unwrap_or_else(|| canon.display().to_string());
+				eprintln!("cd: {}: Not a directory", name);
+			}
+		},
+		Err(_) => eprintln!("cd: no such file or directory: {}", dest_string),
+	}
+
+	return CmdResult::Ok;
+}
