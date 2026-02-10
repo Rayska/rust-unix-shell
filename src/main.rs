@@ -41,6 +41,7 @@ fn main() {
 			"ls" => ls(&current_dir, command_args),
 			"cd" => cd(&home_dir, &mut current_dir, command_args),
 			"pwd" => pwd(&mut current_dir),
+			"write" => write(&current_dir, command_args),
 			"exit" => CmdResult::Exit,
 			_ => CmdResult::Unknown,
 		};
