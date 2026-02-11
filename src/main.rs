@@ -1,5 +1,6 @@
 use std::io::{self, Write};
 use std::path;
+use std::env;
 
 mod shell;
 use shell::commands::*;
@@ -56,7 +57,10 @@ fn help(args: Vec<String>) -> CmdResult {
 fn main() {
 	let mut command_args: Vec<String>;
 	let mut current_dir = path::PathBuf::from(".");
-	let home_dir = path::PathBuf::from(".");
+	let home_dir = env::var_os("HOME")
+		.map(path::PathBuf::from)
+		.or_else(|| env::current_dir().ok())
+		.unwrap_or_else(|| path::PathBuf::from("."));
 
 	loop {
 		print!("$ ");

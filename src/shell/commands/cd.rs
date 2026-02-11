@@ -9,7 +9,7 @@ pub fn cd_usage() {
 	println!("Usage: cd [<path>]");
 	println!("Path can be absolute or relative.");
 	println!("Pathless call will change working directory to be the home directory");
-	println!("Home directory is where the program was launched from.");
+	println!("Home directory is taken from $HOME when available.");
 }
 
 pub fn cd(home_dir: &path::Path, path: &mut path::PathBuf, args: Vec<String>) -> CmdResult {
