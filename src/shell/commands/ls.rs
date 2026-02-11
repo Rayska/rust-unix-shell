@@ -6,10 +6,8 @@ use chrono::{DateTime, Local};
 
 use crate::shell::structures::*;
 
-fn ls_usage(option: char) {
-	if option != 'h' {
-		println!("Unknown option: {option}");
-	}
+pub fn ls_usage() {
+	println!("ls	-	List directory contents\n");
 
 	println!("Usage: ls [-<options>] [<path>]");
 	println!("For example:");
@@ -75,7 +73,8 @@ pub fn ls(path: &path::Path, args: Vec<String>) -> CmdResult {
 				'l' => options.l = true,
 				'a' => options.a = true,
 				char => {
-					ls_usage(char);
+					println!("Unknown option: {char}");
+					ls_usage();
 					return CmdResult::Ok;
 				}
 			}

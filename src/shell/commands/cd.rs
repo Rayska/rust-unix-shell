@@ -3,6 +3,15 @@ use std::path;
 
 use crate::shell::structures::*;
 
+pub fn cd_usage() {
+	println!("cd	-	Change the shell working directory\n");
+
+	println!("Usage: cd [<path>]");
+	println!("Path can be absolute or relative.");
+	println!("Pathless call will change working directory to be the home directory");
+	println!("Home directory is where the program was launched from.");
+}
+
 pub fn cd(home_dir: &path::Path, path: &mut path::PathBuf, args: Vec<String>) -> CmdResult {
 	let dest_string: String;
 
@@ -13,7 +22,15 @@ pub fn cd(home_dir: &path::Path, path: &mut path::PathBuf, args: Vec<String>) ->
 		dest_string = args[1].clone();
 	} else {
 		eprintln!("cd: too many arguments");
+		cd_usage();
 		return CmdResult::Ok;
+	}
+
+	for a in args {
+		if a == "-h" {
+			cd_usage();
+			return CmdResult::Ok;
+		}
 	}
 
 	let candidate_pathbuf = if dest_string == "~" {

@@ -4,15 +4,11 @@ use std::path;
 
 use crate::shell::structures::*;
 
-fn write_usage() {
-	println!("Used write wrong!");
-	println!("Enter input line by line to a file indicated by |name| and stop by giving \"q\" as input");
-	println!("Usage: write |name|");
-	println!("");
-	println!("For example:");
-	println!("write test.txt");
-	println!("This is test input");
-	println!("q");
+pub fn write_usage() {
+	println!("write	-	Write user input to a pre-existing or new file. Pre-existing file's contents are deleted.\n");
+
+	println!("Enter input line by line to a file indicated by <name> and stop by giving \"q\" as input");
+	println!("Usage: write <name>");
 }
 
 fn take_input() -> io::Result<String> {
