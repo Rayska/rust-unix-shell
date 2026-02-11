@@ -51,8 +51,7 @@ fn entry_permissions(path: &path::Path) -> Option<String> {
 }
 
 pub fn ls(path: &path::Path, args: Vec<String>) -> CmdResult {
-
-	let &rest;
+	let rest: &[String];
 
 	let mut options: CommandOptions = CommandOptions::default();
 
@@ -73,7 +72,10 @@ pub fn ls(path: &path::Path, args: Vec<String>) -> CmdResult {
 				'l' => options.l = true,
 				'a' => options.a = true,
 				char => {
-					println!("Unknown option: {char}");
+					if char != 'h' {
+						println!("Unknown option: {char}");
+					}
+
 					ls_usage();
 					return CmdResult::Ok;
 				}
@@ -93,46 +95,47 @@ pub fn ls(path: &path::Path, args: Vec<String>) -> CmdResult {
 	match fs::read_dir(p) {
 		Err(error) => println!("Reading dir with path \"{}\" failed: {}", p.display(), error),
 		Ok(entries) => {
-			let mut simple_names: Vec<String> = Vec::new();
-			let mut detailed: Vec<(String, String, u64)> = Vec::new();
-
-			for entry_res in entries {
-				if let Ok(entry) = entry_res {
-					let name: String = entry.file_name().to_string_lossy().into_owned();
-					let filename: String = entry.file_name().to_string_lossy().into_owned();
-
-					if !filename.starts_with(".") || options.a {
-						if options.l {
-							let meta = entry.metadata().ok();
-							let time_str = meta.as_ref()
-								.and_then(|m| m.modified().or_else(|_| m.created()).ok())
-								.map(|st| {
-									let dt: DateTime<Local> = DateTime::from(st);
-									dt.format("%Y-%m-%d %H:%M").to_string()
-								})
-								.unwrap_or_else(|| "unknown".to_string());
-
-							let size = meta.as_ref().map(|m| m.len()).unwrap_or(0);
-
-							detailed.push((name, time_str, size));
-						}
-						simple_names.push(filename);
-					}
-				}
-			}
-
 			if options.l {
-				detailed.sort_by(|a, b| a.0.cmp(&b.0));
-
-				for (name, time_str, size) in detailed {
-					let perms = match entry_permissions(&p.join(&name)) {
-						Some(s) => s,
-						None => "<perm?>".into()
+				let mut detailed: Vec<(String, String, u64)> = Vec::new();
+				for entry_res in entries {
+					let Ok(entry) = entry_res else {
+						continue;
 					};
+					let filename: String = entry.file_name().to_string_lossy().into_owned();
+					if filename.starts_with('.') && !options.a {
+						continue;
+					}
+
+					let meta = entry.metadata().ok();
+					let time_str = meta
+						.as_ref()
+						.and_then(|m| m.modified().or_else(|_| m.created()).ok())
+						.map(|st| {
+							let dt: DateTime<Local> = DateTime::from(st);
+							dt.format("%Y-%m-%d %H:%M").to_string()
+						})
+						.unwrap_or_else(|| "unknown".to_string());
+					let size = meta.as_ref().map(|m| m.len()).unwrap_or(0);
+					detailed.push((filename, time_str, size));
+				}
+
+				detailed.sort_by(|a, b| a.0.cmp(&b.0));
+				for (name, time_str, size) in detailed {
+					let perms = entry_permissions(&p.join(&name)).unwrap_or_else(|| "<perm?>".into());
 					println!("{:<10} {:>8} {} {}", perms, size, time_str, name);
 				}
-
 			} else {
+				let mut simple_names: Vec<String> = Vec::new();
+				for entry_res in entries {
+					let Ok(entry) = entry_res else {
+						continue;
+					};
+					let filename: String = entry.file_name().to_string_lossy().into_owned();
+					if filename.starts_with('.') && !options.a {
+						continue;
+					}
+					simple_names.push(filename);
+				}
 				simple_names.sort();
 				println!("{}", simple_names.join("\t"));
 			}
