@@ -51,15 +51,8 @@ fn entry_permissions(path: &path::Path) -> Option<String> {
 }
 
 pub fn ls(path: &path::Path, args: Vec<String>) -> CmdResult {
-	let rest: &[String];
-
 	let mut options: CommandOptions = CommandOptions::default();
-
-	if args.len() > 1 {
-		rest = &args[1..];
-	} else {
-		rest = &[];
-	}
+	let rest: &[String] = if args.len() > 1 {&args[1..]} else {&[]};
 
 	let options_collection: Vec<&str> = rest.iter()
 		.filter(|s| s.starts_with('-'))
@@ -87,9 +80,18 @@ pub fn ls(path: &path::Path, args: Vec<String>) -> CmdResult {
 		.find(|s| !s.starts_with('-'))
 		.map(|s| s.as_str());
 
-	let p = match path_str {
-		Some(str) => path::Path::new(str),
+	let joined;
+	let p: &path::Path = match path_str {
 		None => path,
+		Some(str) => {
+			let ps = path::Path::new(str);
+			if ps.is_absolute() {
+				ps
+			} else {
+				joined = path.join(ps);
+				&joined
+			}
+		}
 	};
 
 	match fs::read_dir(p) {
@@ -122,7 +124,7 @@ pub fn ls(path: &path::Path, args: Vec<String>) -> CmdResult {
 				detailed.sort_by(|a, b| a.0.cmp(&b.0));
 				for (name, time_str, size) in detailed {
 					let perms = entry_permissions(&p.join(&name)).unwrap_or_else(|| "<perm?>".into());
-					println!("{:<10} {:>8} {} {}", perms, size, time_str, name);
+					println!("{:<10} {:>8} {} {}", perms, size, time_str, display_arg(&name));
 				}
 			} else {
 				let mut simple_names: Vec<String> = Vec::new();
@@ -137,7 +139,8 @@ pub fn ls(path: &path::Path, args: Vec<String>) -> CmdResult {
 					simple_names.push(filename);
 				}
 				simple_names.sort();
-				println!("{}", simple_names.join("\t"));
+				let display_names: Vec<String> = simple_names.iter().map(|s| display_arg(s)).collect();
+				println!("{}", display_names.join("    "));
 			}
 
 		},

@@ -6,16 +6,91 @@ mod shell;
 use shell::commands::*;
 use shell::structures::*;
 
+fn tokenize_input(line: &str) -> Result<Vec<String>, String> {
+	let mut tokens: Vec<String> = Vec::new();
+	let mut current = String::new();
+	let mut in_single = false;
+	let mut in_double = false;
+	let mut escape = false;
+
+	for ch in line.chars() {
+		if escape {
+			current.push(ch);
+			escape = false;
+			continue;
+		}
+
+		if ch == '\\' && !in_single {
+			escape = true;
+			continue;
+		}
+
+		if in_single {
+			if ch == '\'' {
+				in_single = false;
+			} else {
+				current.push(ch);
+			}
+			continue;
+		}
+
+		if in_double {
+			if ch == '"' {
+				in_double = false;
+			} else {
+				current.push(ch);
+			}
+			continue;
+		}
+
+		if ch == '\'' {
+			in_single = true;
+		} else if ch == '"' {
+			in_double = true;
+		} else if ch.is_whitespace() {
+			if !current.is_empty() {
+				tokens.push(current.clone());
+				current.clear();
+			}
+		} else {
+			current.push(ch);
+		}
+	}
+
+	if escape {
+		return Err("Trailing backslash".to_string());
+	}
+	if in_single || in_double {
+		return Err("Unterminated quote".to_string());
+	}
+	if !current.is_empty() {
+		tokens.push(current);
+	}
+
+	Ok(tokens)
+}
+
 fn take_input() -> Vec<String> {
 	let mut user_input: String = String::new();
-	io::stdin().read_line(&mut user_input).expect("Error reading input");
+	let bytes_read = io::stdin().read_line(&mut user_input).expect("Error reading input");
+
+	if bytes_read == 0 {
+		println!();
+		return vec!["exit".to_string()];
+	}
 
 	let trimmed = user_input.trim();
 	if trimmed.is_empty() {
 		return Vec::new();
 	}
 
-	return trimmed.split_whitespace().map(|s| s.to_string()).collect::<Vec<String>>();
+	match tokenize_input(trimmed) {
+		Ok(tokens) => tokens,
+		Err(e) => {
+			eprintln!("Parse error: {e}");
+			Vec::new()
+		}
+	}
 }
 
 fn help(args: Vec<String>) -> CmdResult {
@@ -89,7 +164,6 @@ fn main() {
 		match action {
 			CmdResult::Ok => {},
 			CmdResult::Exit => {
-				println!("exiting...");
 				break;
 			},
 			CmdResult::Unknown => println!("Unknown command, see \"help\""),

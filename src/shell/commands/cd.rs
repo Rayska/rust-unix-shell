@@ -13,28 +13,26 @@ pub fn cd_usage() {
 }
 
 pub fn cd(home_dir: &path::Path, path: &mut path::PathBuf, args: Vec<String>) -> CmdResult {
-	let dest_string: String;
-
-	if args.len() == 1 {
-		*path = home_dir.to_path_buf();
-		return CmdResult::Ok;
-	} else if args.len() == 2{
-		dest_string = args[1].clone();
-	} else {
-		eprintln!("cd: too many arguments");
+	if args.iter().any(|a| a == "-h") {
 		cd_usage();
 		return CmdResult::Ok;
 	}
 
-	for a in args {
-		if a == "-h" {
-			cd_usage();
-			return CmdResult::Ok;
-		}
+	let dest_string: String;
+	if args.len() == 1 {
+		dest_string = "~".to_string();
+	} else if args.len() == 2 {
+		dest_string = args[1].clone();
+	} else {
+		eprintln!("cd: too many arguments (hint: quote paths with spaces)");
+		cd_usage();
+		return CmdResult::Ok;
 	}
 
 	let candidate_pathbuf = if dest_string == "~" {
 		home_dir.to_path_buf()
+	} else if let Some(rest) = dest_string.strip_prefix("~/") {
+		home_dir.join(rest)
 	} else {
 		let p = path::Path::new(&dest_string);
 
