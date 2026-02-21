@@ -6,3 +6,5 @@ pub mod pwd;
 pub use pwd::{pwd, pwd_usage};
 pub mod write;
 pub use write::{write, write_usage};
+pub mod cat;
+pub use cat::{cat, cat_usage};
