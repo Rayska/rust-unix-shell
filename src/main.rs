@@ -112,6 +112,10 @@ fn help(args: Vec<String>) -> CmdResult {
 				write_usage();
 				return CmdResult::Ok;
 			},
+			"rm" => {
+				rm_usage();
+				return CmdResult::Ok;
+			}
 			"cat" => {
 				cat_usage();
 				return CmdResult::Ok;
@@ -127,6 +131,7 @@ fn help(args: Vec<String>) -> CmdResult {
 	println!("cd [<path>]:		Change directory to the given path or home directory. See cd -h for more.");
 	println!("pwd:				Show the aboslute path to working directory");
 	println!("write <name>:		Write text line by line into a file named <name>. See write -h for more.");
+	println!("rm [-r] <name>:		Remove a file or directory (-r). See rm -h for more.");
 	println!("cat <file> [<file>...]:	Concatenate and print file(s). See cat -h for more.");
 	println!("exit:				Exit program.");
 	println!("help:				This print.\n");
@@ -161,6 +166,7 @@ fn main() {
 			"cd" => cd(&home_dir, &mut current_dir, command_args),
 			"pwd" => pwd(&mut current_dir, command_args),
 			"write" => write(&current_dir, command_args),
+			"rm" => rm(&current_dir, command_args),
 			"cat" => cat(&current_dir, command_args),
 			"exit" => CmdResult::Exit,
 			"help" => help(command_args),

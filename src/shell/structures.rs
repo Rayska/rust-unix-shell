@@ -16,4 +16,5 @@ pub fn display_arg(arg: &str) -> String {
 pub struct CommandOptions {
 	pub a: bool,
 	pub l: bool,
+	pub r: bool,
 }
