@@ -3,6 +3,11 @@ use std::path;
 
 use crate::shell::structures::*;
 
+#[derive(Default)]
+struct RmOptions {
+	recursive: bool,
+}
+
 pub fn rm_usage() {
 	println!("rm	-	Remove the provided item(s).\n");
 
@@ -11,7 +16,7 @@ pub fn rm_usage() {
 }
 
 pub fn rm(cwd: &path::Path, args: Vec<String>) -> CmdResult {
-	let mut options: CommandOptions = CommandOptions::default();
+	let mut opts = RmOptions::default();
 
 	if args.len() < 2 {
 		eprintln!("rm: No target provided");
@@ -60,7 +65,7 @@ pub fn rm(cwd: &path::Path, args: Vec<String>) -> CmdResult {
 				eprintln!("rm: cannot remove '{}': {}", display_arg(target), e);
 			}
 		} else if candidate.is_dir() {
-			if options.r {
+			if opts.recursive {
 				if let Err(e) = fs::remove_dir_all(&candidate) {
 					eprintln!("rm: cannot remove '{}': {}", display_arg(target), e);
 				}

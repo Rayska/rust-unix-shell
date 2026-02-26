@@ -6,13 +6,19 @@ use chrono::{DateTime, Local};
 
 use crate::shell::structures::*;
 
+#[derive(Default)]
+struct LsOptions {
+	all:  bool,
+	long: bool,
+}
+
 pub fn ls_usage() {
 	println!("ls	-	List directory contents\n");
 
 	println!("Usage: ls [-<options>] [<path>]");
 	println!("For example:");
-	println!("ls -l -a .");
-	println!("");
+	println!("ls -l -a .\n");
+
 	println!("Available options:");
 	println!("-l:	List entries with additional information");
 	println!("-a:	Also list hidden files (show entries starting with .)");
@@ -51,7 +57,7 @@ fn entry_permissions(path: &path::Path) -> Option<String> {
 }
 
 pub fn ls(path: &path::Path, args: Vec<String>) -> CmdResult {
-	let mut options: CommandOptions = CommandOptions::default();
+	let mut opts = LsOptions::default();
 	let rest: &[String] = if args.len() > 1 {&args[1..]} else {&[]};
 
 	let options_collection: Vec<&str> = rest.iter()
@@ -62,8 +68,8 @@ pub fn ls(path: &path::Path, args: Vec<String>) -> CmdResult {
 	for option in options_collection {
 		for character in option.chars() {
 			match character {
-				'l' => options.l = true,
-				'a' => options.a = true,
+				'l' => opts.long = true,
+				'a' => opts.all = true,
 				char => {
 					if char != 'h' {
 						println!("Unknown option: {char}");
@@ -97,14 +103,14 @@ pub fn ls(path: &path::Path, args: Vec<String>) -> CmdResult {
 	match fs::read_dir(p) {
 		Err(error) => println!("Reading dir with path \"{}\" failed: {}", p.display(), error),
 		Ok(entries) => {
-			if options.l {
+			if opts.long {
 				let mut detailed: Vec<(String, String, u64)> = Vec::new();
 				for entry_res in entries {
 					let Ok(entry) = entry_res else {
 						continue;
 					};
 					let filename: String = entry.file_name().to_string_lossy().into_owned();
-					if filename.starts_with('.') && !options.a {
+					if filename.starts_with('.') && !opts.all {
 						continue;
 					}
 
@@ -133,7 +139,7 @@ pub fn ls(path: &path::Path, args: Vec<String>) -> CmdResult {
 						continue;
 					};
 					let filename: String = entry.file_name().to_string_lossy().into_owned();
-					if filename.starts_with('.') && !options.a {
+					if filename.starts_with('.') && !opts.all {
 						continue;
 					}
 					simple_names.push(filename);
@@ -146,5 +152,5 @@ pub fn ls(path: &path::Path, args: Vec<String>) -> CmdResult {
 		},
 	}
 
-	return CmdResult::Ok;
+	CmdResult::Ok
 }

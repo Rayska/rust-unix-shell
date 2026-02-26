@@ -11,10 +11,3 @@ pub fn display_arg(arg: &str) -> String {
 		arg.to_string()
 	}
 }
-
-#[derive(Default)]
-pub struct CommandOptions {
-	pub a: bool,
-	pub l: bool,
-	pub r: bool,
-}
