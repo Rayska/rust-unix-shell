@@ -120,6 +120,10 @@ fn help(args: Vec<String>) -> CmdResult {
 				cat_usage();
 				return CmdResult::Ok;
 			}
+			"du" => {
+				du_usage();
+				return CmdResult::Ok;
+			},
 			_ => {},
 		}
 	}
@@ -168,6 +172,7 @@ fn main() {
 			"write" => write(&current_dir, command_args),
 			"rm" => rm(&current_dir, command_args),
 			"cat" => cat(&current_dir, command_args),
+			"du" => du(&current_dir, command_args),
 			"exit" => CmdResult::Exit,
 			"help" => help(command_args),
 			_ => CmdResult::Unknown,

@@ -10,3 +10,5 @@ pub mod cat;
 pub use cat::{cat, cat_usage};
 pub mod rm;
 pub use rm::{rm, rm_usage};
+pub mod du;
+pub use du::{du, du_usage};
