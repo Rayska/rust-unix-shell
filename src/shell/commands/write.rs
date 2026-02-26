@@ -19,21 +19,19 @@ fn take_input() -> io::Result<String> {
 
 
 pub fn write(cwd: &path::Path, args: Vec<String>) -> CmdResult {
-	let target_string: String;
-
-	match args.len() {
+	let target_string: String = match args.len() {
 		1 => {
 			eprintln!("write: No target provided");
 			write_usage();
 			return CmdResult::Ok;
 		},
-		2 => target_string = args[1].clone(),
+		2 => args[1].clone(),
 		_ => {
 			eprintln!("write: Too many arguments (hint: quote paths with spaces)");
 			write_usage();
 			return CmdResult::Ok;
 		}
-	}
+	};
 
 	let p = path::Path::new(&target_string);
 	let candidate_pathbuf = if p.is_absolute() {
@@ -79,5 +77,5 @@ pub fn write(cwd: &path::Path, args: Vec<String>) -> CmdResult {
 		}
 	}
 
-	return CmdResult::Ok;
+	CmdResult::Ok
 }

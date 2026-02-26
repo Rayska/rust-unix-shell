@@ -137,10 +137,11 @@ fn help(args: Vec<String>) -> CmdResult {
 	println!("write <name>:		Write text line by line into a file named <name>. See write -h for more.");
 	println!("rm [-r] <name>:		Remove a file or directory (-r). See rm -h for more.");
 	println!("cat <file> [<file>...]:	Concatenate and print file(s). See cat -h for more.");
+	println!("du [-a -b -c -h]:		Estimate file space usage. See du --help for more.");
 	println!("exit:				Exit program.");
 	println!("help:				This print.\n");
 
-	return CmdResult::Ok;
+	CmdResult::Ok
 }
 
 fn main() {

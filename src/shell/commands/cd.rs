@@ -57,5 +57,5 @@ pub fn cd(home_dir: &path::Path, path: &mut path::PathBuf, args: Vec<String>) ->
 		Err(_) => eprintln!("cd: no such file or directory: {}", dest_string),
 	}
 
-	return CmdResult::Ok;
+	CmdResult::Ok
 }

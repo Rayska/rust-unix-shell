@@ -29,5 +29,5 @@ pub fn pwd(pathbuf: &mut path::PathBuf, args: Vec<String>) -> CmdResult {
 	let s = pathbuf.to_string_lossy();
 	println!("{}", display_arg(s.as_ref()));
 
-	return CmdResult::Ok;
+	CmdResult::Ok
 }

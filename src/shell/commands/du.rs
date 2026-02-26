@@ -9,8 +9,8 @@ pub fn du_usage() {
 
 	println!("Usage: du [-<options>] [<path>]");
 	println!("For example:");
-	println!("du -h -a .");
-	println!("");
+	println!("du -h -a .\n");
+
 	println!("Available options:");
 	println!("-a	Write counts for all files, not just directories");
 	println!("-b	Print sizes in bytes");
@@ -18,17 +18,12 @@ pub fn du_usage() {
 	println!("-h	Print sizes in human-readable format (e.g. 1K, 234M)");
 }
 
+#[derive(Default)]
 struct DuOptions {
 	all:	bool,
 	bytes:	bool,
 	total:	bool,
 	human:	bool,
-}
-
-impl Default for DuOptions {
-	fn default() -> Self {
-		DuOptions { all: false, bytes: false, total: false, human: false }
-	}
 }
 
 fn format_size(size: u64, opts: &DuOptions) -> String {
@@ -49,8 +44,7 @@ fn format_size(size: u64, opts: &DuOptions) -> String {
 		}
 		return format!("{:.1}{}", value, unit);
 	}
-
-	let blocks = (size + 1023) / 1024;
+	let blocks = size.div_ceil(1024);
 	blocks.to_string()
 }
 
@@ -108,6 +102,10 @@ pub fn du(path: &path::Path, args: Vec<String>) -> CmdResult {
 	let rest: &[String] = if args.len() > 1 { &args[1..] } else { &[] };
 
 	for arg in rest.iter().filter(|s| s.starts_with('-')) {
+		if arg == "--help" {
+			du_usage();
+			return CmdResult::Ok;
+		}
 		for ch in arg.strip_prefix('-').unwrap().chars() {
 			match ch {
 				'a' => opts.all  = true,
