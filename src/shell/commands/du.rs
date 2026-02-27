@@ -121,19 +121,26 @@ pub fn du(path: &path::Path, args: Vec<String>) -> CmdResult {
 		}
 	}
 
-	let non_flag_args: Vec<&path::Path> = rest.iter()
+	let non_flag_args: Vec<String> = rest.iter()
 		.filter(|s| !s.starts_with('-'))
-		.map(|s| path::Path::new(s.as_str()))
+		.cloned()
 		.collect();
 
-	let targets = if non_flag_args.is_empty() {
-		vec![path as &path::Path]
+	let resolved: Vec<path::PathBuf> = if non_flag_args.is_empty() {
+		vec![path.to_path_buf()]
 	} else {
-		non_flag_args
+		non_flag_args.iter().map(|s| {
+			let p = path::Path::new(s);
+			if p.is_absolute() {
+				p.to_path_buf()
+			} else {
+				path.join(p)
+			}
+		}).collect()
 	};
 
 	let mut grand_total: u64 = 0;
-	for target in targets {
+	for target in &resolved {
 		let size = du_recurse(target, &opts);
 		grand_total += size;
 	}

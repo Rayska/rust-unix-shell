@@ -7,7 +7,7 @@ pub fn pwd_usage() {
 	println!("Usage: pwd");
 }
 
-pub fn pwd(pathbuf: &mut path::PathBuf, args: Vec<String>) -> CmdResult {
+pub fn pwd(pathbuf: &path::Path, args: Vec<String>) -> CmdResult {
 	for a in args {
 		if a == "-h" {
 			pwd_usage();
@@ -15,7 +15,7 @@ pub fn pwd(pathbuf: &mut path::PathBuf, args: Vec<String>) -> CmdResult {
 		}
 	}
 
-	let canon = match fs::canonicalize(pathbuf.as_path()) {
+	let canon = match fs::canonicalize(pathbuf) {
 		Ok(c) => c,
 		Err(e) => {
 			eprintln!("pwd: {}", e);
@@ -23,10 +23,7 @@ pub fn pwd(pathbuf: &mut path::PathBuf, args: Vec<String>) -> CmdResult {
 		}
 	};
 
-
-	*pathbuf = canon;
-
-	let s = pathbuf.to_string_lossy();
+	let s = canon.to_string_lossy();
 	println!("{}", display_arg(s.as_ref()));
 
 	CmdResult::Ok

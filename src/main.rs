@@ -131,15 +131,15 @@ fn help(args: Vec<String>) -> CmdResult {
 
 	println!("List of supported commands:");
 	println!("Legend: <> = replace, [] = optional");
-	println!("ls [-l] [-a] [<path>]: 	Shows the contents of the given or working directory with optional flags. See ls -h for more.");
-	println!("cd [<path>]:		Change directory to the given path or home directory. See cd -h for more.");
-	println!("pwd:				Show the aboslute path to working directory");
-	println!("write <name>:		Write text line by line into a file named <name>. See write -h for more.");
-	println!("rm [-r] <name>:		Remove a file or directory (-r). See rm -h for more.");
-	println!("cat <file> [<file>...]:	Concatenate and print file(s). See cat -h for more.");
-	println!("du [-a -b -c -h]:		Estimate file space usage. See du --help for more.");
-	println!("exit:				Exit program.");
-	println!("help:				This print.\n");
+	println!("ls [-l] [-a] [<path>]:    Shows the contents of the given or working directory with optional flags. See ls -h for more.");
+	println!("cd [<path>]:              Change directory to the given path or home directory. See cd -h for more.");
+	println!("pwd:                      Show the aboslute path to working directory");
+	println!("write <name>:             Write text line by line into a file named <name>. See write -h for more.");
+	println!("rm [-r] <name>:           Remove a file or directory (-r). See rm -h for more.");
+	println!("cat <file> [<file>...]:   Concatenate and print file(s). See cat -h for more.");
+	println!("du [-a -b -c -h]:         Estimate file space usage. See du --help for more.");
+	println!("exit:                     Exit program.");
+	println!("help:                     This print.\n");
 
 	CmdResult::Ok
 }
@@ -169,7 +169,7 @@ fn main() {
 		let action: CmdResult = match command_args.first().unwrap().trim() {
 			"ls" => ls(&current_dir, command_args),
 			"cd" => cd(&home_dir, &mut current_dir, command_args),
-			"pwd" => pwd(&mut current_dir, command_args),
+			"pwd" => pwd(&current_dir, command_args),
 			"write" => write(&current_dir, command_args),
 			"rm" => rm(&current_dir, command_args),
 			"cat" => cat(&current_dir, command_args),
